@@ -54,17 +54,30 @@ function App() {
       >
         {studentData.map((data, i) => {
           function byteArrayToBase64(byteArray) {
-            const binaryString = String.fromCharCode(
-              ...new Uint8Array(byteArray)
-            );
+            const CHUNK_SIZE = 0x8000; // Maximum number of characters per chunk
+            let binaryString = '';
+          
+            // Ensure byteArray is a Uint8Array
+            const uint8Array = new Uint8Array(byteArray);
+          
+            for (let i = 0; i < uint8Array.length; i += CHUNK_SIZE) {
+              const chunk = uint8Array.subarray(i, i + CHUNK_SIZE);
+              binaryString += String.fromCharCode.apply(null, chunk);
+            }
             return btoa(binaryString);
           }
-
+          
+          // Assuming data.user.ProfileImg.img is a Buffer object
+          const bufferData = data.user.ProfileImg.img.data;
+          
           // Convert the image byte array to a Base64 string
-          const base64String = byteArrayToBase64(data.user.ProfileImg.img.data);
-
+          const base64String = byteArrayToBase64(bufferData);
+          
           // Create a data URL
           const dataUrl = `data:image/jpeg;base64,${base64String}`;
+          
+          // console.log(dataUrl); // This will output the data URL for the image
+          
 
           return (
             <div key={i}>
